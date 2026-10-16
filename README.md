@@ -85,6 +85,14 @@ python export_web.py                                  # artifacts/model.keras â†
 python -m http.server 8000 --directory web           # preview at http://localhost:8000
 ```
 
+## Test it yourself (held-out images)
+
+[`web/downloads/greenlens-test-set.zip`](web/downloads/greenlens-test-set.zip) (6 MB) has **380 test images, 10 per class**. The model never saw them during training and they were not used to pick the checkpoint. File names are just numbers, so the test is blind. `answers.csv` has the correct label for every file.
+
+1. Download the zip from the website's **Test the model yourself** section, or from the repo, and unzip it.
+2. On the [website](https://amr-elgharip2006.github.io/Plant-Disease-Classification/), click **Test a whole set** and select all images in `images/` together with `answers.csv`.
+3. The site classifies every image in the browser and reports the accuracy, highlighting the wrong ones. Our run: **378/380 correct (99.47%)**.
+
 ## Training outputs
 
 Everything is written to `artifacts/`:

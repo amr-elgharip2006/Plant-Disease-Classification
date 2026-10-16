@@ -271,3 +271,19 @@ main { max-width: 1000px; margin: 0 auto; padding: 0 16px 48px; }
   .steps { grid-template-columns: 1fr; }
   .benefits { grid-template-columns: 1fr; }
 }
+
+/* ---------- test set + batch test ---------- */
+.testset-steps { margin: 8px 0 16px; padding-inline-start: 22px; color: var(--muted); }
+.testset-steps li + li { margin-top: 4px; }
+.buttons.start { justify-content: flex-start; }
+a.btn { text-decoration: none; }
+.batch-out { margin-top: 18px; }
+.batch-summary { margin: 0 0 6px; font-weight: 600; color: var(--ink); }
+.table-wrap { max-height: 420px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; }
+.batch-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.batch-table th, .batch-table td { padding: 8px 10px; text-align: start; border-bottom: 1px solid var(--border); }
+.batch-table th { position: sticky; top: 0; background: var(--bg); color: var(--muted); font-weight: 600; }
+.batch-table td.file, .batch-table td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.batch-table tr.ok td:last-child { color: var(--ok); }
+.batch-table tr.bad { background: var(--bad-soft); }
+.batch-table tr.bad td:last-child { color: var(--bad); font-weight: 600; }

@@ -31,6 +31,7 @@
     <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
     <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></symbol>
     <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16M6 16l4-5 3 3 5-7"/></symbol>
   </svg>
 
@@ -137,6 +138,40 @@
         </figure>
       </div>
       <p class="note" data-i18n="resultsNote"></p>
+    </section>
+
+    <section class="card testset" id="testset">
+      <h2 class="card-title"><span class="icon-circle sky"><svg class="ico"><use href="#i-search"/></svg></span><span data-i18n="testsetTitle"></span></h2>
+      <p data-i18n="testsetIntro"></p>
+      <ol class="testset-steps">
+        <li data-i18n="testsetStep1"></li>
+        <li data-i18n="testsetStep2"></li>
+        <li data-i18n="testsetStep3"></li>
+      </ol>
+      <div class="buttons start">
+        <a class="btn" href="downloads/greenlens-test-set.zip" download>
+          <svg class="ico"><use href="#i-download"/></svg><span data-i18n="testsetDownload"></span>
+        </a>
+        <label class="btn primary batch-btn">
+          <input id="batch" type="file" accept="image/*,.csv" multiple hidden>
+          <svg class="ico"><use href="#i-chart"/></svg><span data-i18n="testsetRun"></span>
+        </label>
+      </div>
+      <div id="batch-out" class="batch-out" hidden>
+        <p id="batch-summary" class="batch-summary" role="status"></p>
+        <div class="meter"><span id="batch-progress"></span></div>
+        <div class="table-wrap">
+          <table class="batch-table">
+            <thead><tr>
+              <th data-i18n="colFile"></th>
+              <th data-i18n="colPrediction"></th>
+              <th data-i18n="colConfidence"></th>
+              <th data-i18n="colTruth"></th>
+            </tr></thead>
+            <tbody id="batch-rows"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <section class="grid two">

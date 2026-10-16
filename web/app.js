@@ -133,6 +133,7 @@ function applyLanguage() {
   renderStatic();
   if (meta) renderMeta();
   if (lastPreds) renderResult(lastPreds);
+  renderBatch();
   setStatus(model ? "ready" : $("status").classList.contains("error") ? "error" : "loading");
 }
 
@@ -147,7 +148,7 @@ $("lang").addEventListener("click", () => {
 function setStatus(state) {
   $("status").className = `pill status ${state}`;
   $("status-text").textContent = t({ loading: "loadingModel", ready: "modelReady", error: "modelError", busy: "analyzing" }[state]);
-  document.querySelectorAll(".picker .btn").forEach((b) => b.setAttribute("aria-disabled", state !== "ready"));
+  document.querySelectorAll(".picker .btn, .batch-btn").forEach((b) => b.setAttribute("aria-disabled", state !== "ready"));
 }
 
 async function loadModel() {
@@ -171,8 +172,7 @@ async function loadModel() {
 
 // ---------- inference ----------
 
-function drawCenterCrop(img) {
-  const canvas = $("canvas");
+function drawCenterCrop(img, canvas = $("canvas")) {
   const size = meta.img_size;
   canvas.width = canvas.height = size;
   const ctx = canvas.getContext("2d");
@@ -183,27 +183,31 @@ function drawCenterCrop(img) {
   return canvas;
 }
 
+async function predictFile(file, canvas = $("canvas"), topK = 4) {
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  drawCenterCrop(bitmap, canvas);
+  bitmap.close();
+  // Model expects raw 0..255 RGB; EfficientNet normalizes internally.
+  // Test-time augmentation: average the image with its horizontal and vertical flips.
+  const probs = tf.tidy(() => {
+    const x = tf.browser.fromPixels(canvas).toFloat().expandDims(0);
+    const batch = tf.concat([x, tf.reverse(x, 2), tf.reverse(x, 1)]);
+    return model.predict(batch).mean(0);
+  });
+  const data = await probs.data();
+  probs.dispose();
+  return [...data]
+    .map((p, i) => ({ ...meta.classes[i], p }))
+    .sort((a, b) => b.p - a.p)
+    .slice(0, topK);
+}
+
 async function classify(file) {
   if (!model) return;
   if (!file.type.startsWith("image/")) { alert(t("invalidFile")); return; }
   setStatus("busy");
   try {
-    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
-    const canvas = drawCenterCrop(bitmap);
-    // Model expects raw 0..255 RGB; EfficientNet normalizes internally.
-    // Test-time augmentation: average the image with its horizontal and vertical flips.
-    const probs = tf.tidy(() => {
-      const x = tf.browser.fromPixels(canvas).toFloat().expandDims(0);
-      const batch = tf.concat([x, tf.reverse(x, 2), tf.reverse(x, 1)]);
-      return model.predict(batch).mean(0);
-    });
-    const data = await probs.data();
-    probs.dispose();
-    const preds = [...data]
-      .map((p, i) => ({ ...meta.classes[i], p }))
-      .sort((a, b) => b.p - a.p)
-      .slice(0, 4);
-    renderResult(preds);
+    renderResult(await predictFile(file));
     $("dropzone").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     console.error(err);
@@ -262,6 +266,106 @@ zone.addEventListener("drop", (e) => {
 document.addEventListener("paste", (e) => {
   const file = [...e.clipboardData.files].find((f) => f.type.startsWith("image/"));
   if (file) classify(file);
+});
+
+// ---------- batch test ----------
+
+// Minimal CSV parser (handles quoted fields such as "Pepper,_bell___...").
+function parseCsv(text) {
+  const rows = [];
+  let row = [], field = "", quoted = false;
+  text = text.replace(/^\uFEFF/, "");
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quoted) {
+      if (ch === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else field += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ",") { row.push(field); field = ""; }
+    else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); field = "";
+      if (row.some((f) => f !== "")) rows.push(row);
+      row = [];
+    } else field += ch;
+  }
+  row.push(field);
+  if (row.some((f) => f !== "")) rows.push(row);
+  return rows;
+}
+
+async function readAnswers(file) {
+  const [header, ...rows] = parseCsv(await file.text());
+  const fileCol = header.indexOf("file");
+  const idCol = header.indexOf("class_id");
+  return new Map(rows.map((r) => [r[fileCol], r[idCol]]));
+}
+
+const fill = (key, vars) => Object.entries(vars).reduce((s, [k, v]) => s.replace(`{${k}}`, v), t(key));
+
+let batchState = null;
+
+// <bdi> keeps "0001.jpg" in order inside the right-to-left table.
+function fileCell(name) {
+  const td = el("td", "file");
+  td.append(el("bdi", "", name));
+  return td;
+}
+
+function renderBatch() {
+  if (!batchState) return;
+  const { rows, total, answers } = batchState;
+  const checked = rows.filter((r) => r.truth);
+  const correct = checked.filter((r) => r.truth.id === r.pred.id).length;
+  const lines = [rows.length < total ? fill("batchProgress", { done: rows.length, total }) : fill("batchDone", { total })];
+  if (checked.length) lines.push(fill("batchAccuracy", { acc: pct(correct / checked.length, 2), correct, checked: checked.length }));
+  else if (!answers) lines.push(t("batchNoAnswers"));
+  $("batch-summary").textContent = lines.join(" · ");
+  $("batch-progress").style.width = pct(rows.length / total);
+  $("batch-rows").replaceChildren(...rows.map((r) => {
+    const tr = el("tr", r.truth ? (r.truth.id === r.pred.id ? "ok" : "bad") : "");
+    const label = (c) => `${plantName(c)}: ${conditionName(c)}`;
+    tr.append(
+      fileCell(r.name),
+      el("td", "", label(r.pred)),
+      el("td", "num", pct(r.pred.p)),
+      el("td", "", r.truth ? `${r.truth.id === r.pred.id ? "✓" : "✗"} ${label(r.truth)}` : "—"),
+    );
+    return tr;
+  }));
+}
+
+$("batch").addEventListener("change", async (e) => {
+  const files = [...e.target.files];
+  e.target.value = "";
+  if (!model || !files.length) return;
+  const csv = files.find((f) => f.name.toLowerCase().endsWith(".csv"));
+  const images = files.filter((f) => f.type.startsWith("image/")).sort((a, b) => a.name.localeCompare(b.name));
+  if (!images.length) { alert(t("invalidFile")); return; }
+  const answers = csv ? await readAnswers(csv) : null;
+  const byId = new Map(meta.classes.map((c) => [c.id, c]));
+  batchState = { rows: [], total: images.length, answers };
+  $("batch-out").hidden = false;
+  setStatus("busy");
+  const canvas = document.createElement("canvas");
+  try {
+    for (const file of images) {
+      const [pred] = await predictFile(file, canvas, 1);
+      const truthId = answers?.get(file.name);
+      batchState.rows.push({ name: file.name, pred, truth: truthId ? byId.get(truthId) : null });
+      if (batchState.rows.length % 10 === 0 || batchState.rows.length === images.length) {
+        renderBatch();
+        await new Promise((r) => setTimeout(r));  // let the page repaint
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    alert(t("invalidFile"));
+  } finally {
+    renderBatch();
+    setStatus("ready");
+  }
 });
 
 applyLanguage();
