@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Training outputs (models are large; share them via Releases or Drive)
+artifacts/
+*.keras
+*.h5
+
+# Data
+data/
+plantvillage*/
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/

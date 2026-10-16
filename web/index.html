@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>GreenLens | نظام ذكي للتعرف على أمراض النباتات</title>
+  <meta name="description" content="GreenLens by team Vireon: identify 38 plant diseases from a leaf photo, directly in your browser, with treatment tips.">
+  <meta name="theme-color" content="#2f7d4a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='27' cy='27' r='19' fill='%23e4f3e7' stroke='%232f7d4a' stroke-width='5'/><path d='M41 41l15 15' stroke='%231e2a5a' stroke-width='7' stroke-linecap='round'/><path d='M18 33c0-10 8-16 18-16 0 10-6 18-16 18z' fill='%233a9a52'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Icon sprite -->
+  <svg hidden xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></symbol>
+    <symbol id="i-brain" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="12" cy="13" r="2.5"/><path d="M12 7v3.5M10 14.5l-3.8 3M14 14.5l3.8 3"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></symbol>
+    <symbol id="i-algo" viewBox="0 0 24 24"><rect x="4" y="3" width="7" height="5" rx="1"/><rect x="13" y="16" width="7" height="5" rx="1"/><rect x="4" y="16" width="7" height="5" rx="1"/><path d="M7.5 8v4h9v4M7.5 12v4"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 9 12 5 20 5c0 8-4 15-14 15"/><path d="M5 19c3-5 7-8 11-10"/></symbol>
+    <symbol id="i-coins" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></symbol>
+    <symbol id="i-plant" viewBox="0 0 24 24"><path d="M12 21V9"/><path d="M12 9c-3 0-5-2-5-5 3 0 5 2 5 5zM12 9c3 0 5-2 5-5-3 0-5 2-5 5zM12 15c-3 0-5-2-5-5 3 0 5 2 5 5zM12 15c3 0 5-2 5-5-3 0-5 2-5 5z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16M6 16l4-5 3 3 5-7"/></symbol>
+  </svg>
+
+  <header class="top">
+    <a class="brand" href="#">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="27" cy="27" r="19" fill="#e4f3e7" stroke="#2f7d4a" stroke-width="5"/>
+        <path d="M41 41l15 15" stroke="#1e2a5a" stroke-width="7" stroke-linecap="round"/>
+        <path d="M18 33c0-10 8-16 18-16 0 10-6 18-16 18z" fill="#3a9a52"/>
+      </svg>
+      <span class="brand-text"><strong data-i18n="brand"></strong><small data-i18n="byTeam"></small></span>
+    </a>
+    <button id="lang" class="ghost" type="button"></button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="eyebrow"><svg class="ico"><use href="#i-globe"/></svg><span data-i18n="eyebrow"></span></span>
+      <h1 data-i18n="brand"></h1>
+      <p class="subtitle" data-i18n="subtitle"></p>
+      <p class="tagline" data-i18n="tagline"></p>
+      <div class="hero-badges">
+        <span id="acc-pill" class="pill pill-accent"></span>
+        <span id="status" class="pill status" role="status"><span class="dot"></span><span id="status-text"></span></span>
+      </div>
+    </section>
+
+    <section id="dropzone" class="card dropzone">
+      <div id="picker" class="picker">
+        <svg class="picker-ico" aria-hidden="true"><use href="#i-upload"/></svg>
+        <p class="picker-title" data-i18n="pickerTitle"></p>
+        <div class="buttons">
+          <label class="btn primary">
+            <input id="file" type="file" accept="image/*" hidden>
+            <svg class="ico"><use href="#i-upload"/></svg><span data-i18n="upload"></span>
+          </label>
+          <label class="btn">
+            <input id="camera" type="file" accept="image/*" capture="environment" hidden>
+            <svg class="ico"><use href="#i-camera"/></svg><span data-i18n="camera"></span>
+          </label>
+        </div>
+        <p class="hint" data-i18n="drop"></p>
+      </div>
+
+      <div id="result" class="result" hidden>
+        <figure class="preview"><canvas id="canvas" width="224" height="224"></canvas></figure>
+        <div class="verdict">
+          <span id="badge" class="badge"></span>
+          <h2 id="plant"></h2>
+          <p id="condition" class="condition"></p>
+          <div class="meter-row">
+            <span data-i18n="confidence"></span>
+            <strong id="confidence"></strong>
+          </div>
+          <div class="meter"><span id="meter-fill"></span></div>
+          <p id="low" class="warn" data-i18n="lowConfidence" hidden></p>
+          <div class="tips">
+            <h3><svg class="ico"><use href="#i-doc"/></svg><span data-i18n="recommendations"></span></h3>
+            <ul id="tips"></ul>
+          </div>
+          <h3 class="others-title" data-i18n="others"></h3>
+          <ol id="others" class="others"></ol>
+          <button id="again" class="btn" type="button" data-i18n="tryAnother"></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="stats" class="stats"></section>
+
+    <section class="grid two">
+      <div class="card tint-rose">
+        <h2 class="card-title"><span class="icon-circle rose"><svg class="ico"><use href="#i-alert"/></svg></span><span data-i18n="problemTitle"></span></h2>
+        <p data-i18n="problem"></p>
+        <div class="leaf-demo" aria-hidden="true">
+          <svg viewBox="0 0 90 60"><path d="M10 50C10 25 28 12 60 12c0 25-14 40-50 38z" fill="#8fc48d"/><circle cx="35" cy="33" r="3" fill="#b5472b"/><circle cx="46" cy="24" r="2.5" fill="#b5472b"/><circle cx="27" cy="42" r="2" fill="#b5472b"/><circle cx="50" cy="36" r="2" fill="#d1853c"/></svg>
+          <span class="leaf-arrow">→</span>
+          <svg viewBox="0 0 90 60"><path d="M10 50C10 25 28 12 60 12c0 25-14 40-50 38z" fill="#3a9a52"/><path d="M14 48c10-14 24-24 42-32" stroke="#e4f3e7" stroke-width="2" fill="none"/></svg>
+        </div>
+      </div>
+      <div class="card tint-green">
+        <h2 class="card-title"><span class="icon-circle green"><svg class="ico"><use href="#i-bulb"/></svg></span><span data-i18n="solutionTitle"></span></h2>
+        <p data-i18n="solution"></p>
+        <ul id="solution-points" class="checklist"></ul>
+      </div>
+    </section>
+
+    <section class="card how" id="how">
+      <h2 class="card-title center" data-i18n="howTitle"></h2>
+      <ol id="steps" class="steps"></ol>
+    </section>
+
+    <section class="card results" id="results">
+      <h2 class="card-title"><span class="icon-circle green"><svg class="ico"><use href="#i-chart"/></svg></span><span data-i18n="resultsTitle"></span></h2>
+      <p data-i18n="resultsIntro"></p>
+      <ul id="metrics" class="metrics"></ul>
+      <div class="figures">
+        <figure>
+          <a href="images/training_curves.png" target="_blank" rel="noopener"><img src="images/training_curves.png" alt="Training and validation accuracy and loss per epoch" loading="lazy"></a>
+          <figcaption data-i18n="figCurves"></figcaption>
+        </figure>
+        <figure class="matrix">
+          <a href="images/confusion_matrix.png" target="_blank" rel="noopener"><img src="images/confusion_matrix.png" alt="Normalized confusion matrix on the test set" loading="lazy"></a>
+          <figcaption data-i18n="figMatrix"></figcaption>
+        </figure>
+      </div>
+      <p class="note" data-i18n="resultsNote"></p>
+    </section>
+
+    <section class="grid two">
+      <div class="card tint-lavender">
+        <h2 class="card-title" data-i18n="fieldsTitle"></h2>
+        <ul id="fields" class="fields"></ul>
+      </div>
+      <div class="card tint-sky">
+        <h2 class="card-title" data-i18n="benefitsTitle"></h2>
+        <ul id="benefits" class="benefits"></ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title" data-i18n="supported"></h2>
+      <ul id="plants" class="chips"></ul>
+      <p class="note" data-i18n="supportedNote"></p>
+    </section>
+
+    <section class="card team">
+      <h2 class="card-title" data-i18n="teamTitle"></h2>
+      <div class="project-meta">
+        <span class="meta-chip"><svg class="ico"><use href="#i-cap"/></svg><bdi data-i18n="course"></bdi></span>
+        <span class="meta-chip"><svg class="ico"><use href="#i-user"/></svg><bdi data-i18n="supervisor"></bdi></span>
+      </div>
+      <ul id="team" class="team-grid"></ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="slogan-band">
+      <svg class="ico"><use href="#i-leaf"/></svg>
+      <span data-i18n="slogan"></span>
+    </div>
+    <p class="disclaimer" data-i18n="disclaimer"></p>
+    <p class="foot-links"><a href="https://github.com/amr-elgharip2006/Plant-Disease-Classification"><bdi data-i18n="source"></bdi></a> · <bdi>© 2026 Vireon</bdi></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
